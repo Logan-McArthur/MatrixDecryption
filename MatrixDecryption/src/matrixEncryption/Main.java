@@ -14,14 +14,15 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		
+		//MatrixPainter.create("Decryption");
 		//int[][] problem3Inverse = {	{2,-5},	{-3,8}		}; 			// These are wrong
 		//int[][] problem3Inverse = {	{2,-5},	{-1,2}};				// These are wrong
 		//int[][] result3 = multiplyMatrix(problem3Inverse, problem3As2by);
 		//printCharMatrix(result3);
-		//bruteForceNumber3();
+		bruteForceNumber3();
 		//bruteForceNumber3(2);
-		doNumber2();
-		doNumber1();
+		//doNumber2();
+		//doNumber1();
 		// Length is 104
 		// I will guess a 4x26
 		// But a 2x52 is possible
@@ -59,7 +60,8 @@ public class Main {
 															{-1*c/(a*d-b*c), a/(a*d-b*c)}};
 													printCharMatrix(multiplyMatrix(inverse, problem3As2by));
 													System.out.println("Success: a="+a+", b=" + b + ", c=" + c + ", d=" + d);
-													System.out.println(characters[r]+""+characters[s]+""+characters[t]+""+characters[u]+characters[v] + characters[w]);
+													printMatrix(inverse);
+													//System.out.println(characters[r]+""+characters[s]+""+characters[t]+""+characters[u]+characters[v] + characters[w]);
 													results++;
 												}
 											}
