@@ -2,6 +2,7 @@ package matrixEncryption;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -15,13 +16,14 @@ public class MatrixPainter extends BasicGame {
 			app.setDisplayMode(800, 600, false);
 			app.setShowFPS(false);
 			app.setTargetFrameRate(30);
+			app.setMinimumLogicUpdateInterval(10);
 			app.start();
 		} catch (SlickException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+	final char[] characters = {' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 	final int[][] problem3 = {
 			{34, 54, 23, 54, 63, 57, 87, 36, 105, 63, 100, 9, 55, 117, 115, 0, 169, 67, 65, 124, 45, 83, 135, 25, 134, 63,
 			79, 99, 100, 27, 107, 43, 50, 124, 39, 48, 160, 27, 90, 137, 0, 72, 122, 80, 114, 158, 104, 69, 10, 99, 70, 54},
@@ -45,6 +47,10 @@ public class MatrixPainter extends BasicGame {
 			{-3,-2,4},
 			{-1,0,1},
 			{2,1,-2}};
+	private int currentProblem;
+	private int[][] encrypterMatrix;
+	private int[] guesses;
+	private boolean running = true;
 	public MatrixPainter(String title) {
 		super(title);
 		// TODO Auto-generated constructor stub
@@ -52,11 +58,30 @@ public class MatrixPainter extends BasicGame {
 
 	@Override
 	public void render(GameContainer container, Graphics grafix) throws SlickException {
+		
+		
+		switch(currentProblem) {
+		case 1:
+			
+			break;
+		case 2:
+			drawMatrix(grafix, stringMatrix(encrypterMatrix), 10, 10);
+			break;
+		case 3:
+			drawMatrix(grafix, stringMatrix(encrypterMatrix), 10, 10);
+			
+			break;
+		}
+		
 		// TODO Auto-generated method stub
+		//grafix.setBackground(Color.white);
+		//grafix.setColor(Color.black);
 		int[][] mat = {{1,31},{400,5}};
 		Input in = container.getInput();
 		//grafix.drawString("(" +in.getMouseX() + ", " +in.getMouseY() + ")", 5, 5);
-		drawMatrix(grafix, stringMatrix(mat), 10,10);
+		int[][] example = {{9, 0, 8, 15, 16,5},{0, 25, 15, 21, 0, 19},{20, 21, 4, 9, 5, 4}};
+		
+		drawMatrix(grafix, stringMatrix(encrypterMatrix), 10,10);
 	}
 	
 	public void drawMatrix(Graphics grafix, String matrix, int x, int y) {
@@ -73,6 +98,20 @@ public class MatrixPainter extends BasicGame {
 		
 	}
 	
+	public String convertMatrixToText(int[][] matrix) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				if (matrix[i][j] > characters.length) {
+					sb.append("NaN");
+				} else {
+					sb.append(characters[matrix[i][j]]);
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
 	public String stringMatrix(int[][] matrix) {
 		StringBuilder[] sb = new StringBuilder[matrix.length];
 		for (int sbIndex = 0; sbIndex < sb.length; sbIndex++) {
@@ -87,6 +126,9 @@ public class MatrixPainter extends BasicGame {
 			
 			for (int i = 0; i < matrix.length; i++) {
 				String str = String.valueOf(matrix[i][j]);
+				if (str.length() ==1) {
+					str = " " + str;
+				}
 				for (int tmp = 0; tmp < maxLength - str.length(); tmp++) {
 					sb[i].append(" ");
 				}
@@ -127,9 +169,95 @@ public class MatrixPainter extends BasicGame {
 		}
 		return result;
 	}
+	
+	public void setCurrentProblem(int problem) {
+		switch(problem) {
+		case 1:
+			
+			currentProblem = 1;
+			break;
+		case 2:
+			encrypterMatrix = new int[2][2];
+			currentProblem = 2;
+			//guesses = new int[4];
+			// Guesses should be the suspected first word
+			break;
+		case 3:
+			encrypterMatrix = new int[2][2];
+			guesses = new int[6];
+			currentProblem = 3;
+			break;
+		}
+	}
+	
+	public int[][] computeInverse(int a, int b, int c, int d) {
+		int[][] inverse = {
+				{d/(a*d-b*c), -1*b/(a*d-b*c)},
+				{-1*c/(a*d-b*c), a/(a*d-b*c)}};
+		return inverse;
+	}
+	
+	public void setupNextIteration() {
+		switch(currentProblem) {
+		case 1:
+			running = false;
+			break;
+		case 2:
+			incrementEncrypter();
+			break;
+		case 3:
+			incrementGuess();
+			break;
+		}
+	}
+	public void incrementEncrypter() {
+		int limit = 10;
+		// a
+		//  b
+		//   c
+		//    d
+		encrypterMatrix[1][1] += 1;
+		if (encrypterMatrix[1][1] > limit) {
+			encrypterMatrix[1][1] = 0;
+			encrypterMatrix[1][0] += 1;
+		}
+		if (encrypterMatrix[1][0] > limit) {
+			encrypterMatrix[1][0] = 0;
+			encrypterMatrix[0][1] += 1;
+		}
+		if (encrypterMatrix[0][1] > limit) {
+			encrypterMatrix[0][1] = 0;
+			encrypterMatrix[0][0] += 1;
+		}
+		if (encrypterMatrix[0][0] > limit) {
+			encrypterMatrix[0][0] = 0;
+			running = false;
+			return;
+		}
+		if(encrypterMatrix[0][0] * encrypterMatrix[1][1] == encrypterMatrix[1][0]*encrypterMatrix[0][1]) {
+			incrementEncrypter();
+		}
+			
+	}
+	
+	public void incrementGuess() {
+		for(int i = guesses.length-1; i > 0; i--) {
+			guesses[i] += 1;
+			if (guesses[i] > 26) {
+				guesses[i] = 0;
+				if (i == 0) {
+					incrementEncrypter();
+				} else {
+					guesses[i-1] += 1;
+				}
+			}
+		}
+	}
+	
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		// TODO Auto-generated method stub
+		this.setCurrentProblem(2);
 		
 	}
 
@@ -137,7 +265,10 @@ public class MatrixPainter extends BasicGame {
 	public void update(GameContainer container, int delta)
 			throws SlickException {
 		// TODO Auto-generated method stub
-		
+		int increments = 1;
+		for(int i = 0; i < increments && running; i++) {
+			this.setupNextIteration();
+		}
 	}
 
 }

@@ -14,15 +14,16 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		//MatrixPainter.create("Decryption");
+		MatrixPainter.create("Decryption");
 		//int[][] problem3Inverse = {	{2,-5},	{-3,8}		}; 			// These are wrong
 		//int[][] problem3Inverse = {	{2,-5},	{-1,2}};				// These are wrong
 		//int[][] result3 = multiplyMatrix(problem3Inverse, problem3As2by);
 		//printCharMatrix(result3);
-		bruteForceNumber3();
+		//bruteForceNumber3();
 		//bruteForceNumber3(2);
 		//doNumber2();
 		//doNumber1();
+		//bruteForceNumber2();
 		// Length is 104
 		// I will guess a 4x26
 		// But a 2x52 is possible
@@ -146,7 +147,7 @@ public class Main {
 	}
 	
 	public static void bruteForceNumber2() throws InterruptedException {
-		int lim = 50;
+		int lim = 20;
 		for (int a = 1; a < lim; a++) {
 			for (int b = 1; b < lim; b++) {
 				for (int c = 1; c < lim; c++) {
