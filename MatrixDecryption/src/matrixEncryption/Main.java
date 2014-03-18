@@ -14,15 +14,15 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		MatrixPainter.create("Decryption");
+		//MatrixPainter.create("Decryption");
 		//int[][] problem3Inverse = {	{2,-5},	{-3,8}		}; 			// These are wrong
 		//int[][] problem3Inverse = {	{2,-5},	{-1,2}};				// These are wrong
 		//int[][] result3 = multiplyMatrix(problem3Inverse, problem3As2by);
 		//printCharMatrix(result3);
-		//bruteForceNumber3();
+		bruteForceNumber3();
 		//bruteForceNumber3(2);
-		//doNumber2();
-		//doNumber1();
+		doNumber2();
+		doNumber1();
 		//bruteForceNumber2();
 		// Length is 104
 		// I will guess a 4x26
@@ -30,7 +30,7 @@ public class Main {
 	}
 	// Need to incorporate c and d, or else it will not work fast enough
 	public static void bruteForceNumber3() throws Exception {
-		int lim = 25;
+		int lim = 20;
 		int results = 0;
 		long startTime = System.nanoTime();
 		for (int a = 0; a < lim; a++) {
@@ -59,11 +59,16 @@ public class Main {
 													int[][] inverse = {
 															{d/(a*d-b*c), -1*b/(a*d-b*c)},
 															{-1*c/(a*d-b*c), a/(a*d-b*c)}};
-													printCharMatrix(multiplyMatrix(inverse, problem3As2by));
-													System.out.println("Success: a="+a+", b=" + b + ", c=" + c + ", d=" + d);
-													printMatrix(inverse);
-													//System.out.println(characters[r]+""+characters[s]+""+characters[t]+""+characters[u]+characters[v] + characters[w]);
-													results++;
+													int[][] tmp = multiplyMatrix(inverse, problem3As2by);
+													if (easyTest(tmp)) {
+														printCharMatrix(tmp);
+														System.out.println("Success: a="+a+", b=" + b + ", c=" + c + ", d=" + d);
+														printMatrix(inverse);
+														//System.out.println(characters[r]+""+characters[s]+""+characters[t]+""+characters[u]+characters[v] + characters[w]);
+														results++;
+														
+													}
+													//return;
 												}
 											}
 											
@@ -86,6 +91,9 @@ public class Main {
 	public static void printCharMatrix(int[][] matrix) {
 		for (int row = 0; row < matrix.length; row++) {
 			for (int col = 0; col < matrix[0].length; col++) {
+				if (matrix[row][col] >= characters.length || matrix[row][col] <0) {
+					continue;
+				}
 				System.out.print(characters[matrix[row][col]]);
 			}
 			
@@ -93,6 +101,16 @@ public class Main {
 		System.out.println("");
 	}
 	
+	public static boolean easyTest(int[][] matrix) {
+		for (int row = 0; row < matrix.length; row++) {
+			for (int col = 0; col < matrix[0].length; col++) {
+				if (matrix[row][col] >= characters.length || matrix[row][col] < 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	public static void bruteForceNumber3(int depth) throws Exception {
 		
 		

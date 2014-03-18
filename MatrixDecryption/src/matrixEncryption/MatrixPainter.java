@@ -1,29 +1,40 @@
 package matrixEncryption;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.opengl.pbuffer.GraphicsFactory;
 
 public class MatrixPainter extends BasicGame {
 
+	public static final int WindowWidth = 800;
+	public static final int WindowHeight = 600;
+	
 	public static void create(String title) {
 		try {
 			AppGameContainer app = new AppGameContainer(new MatrixPainter(title));
-			app.setDisplayMode(800, 600, false);
-			app.setShowFPS(false);
+			app.setDisplayMode(WindowWidth, WindowHeight, false);
+			app.setShowFPS(true);
 			app.setTargetFrameRate(30);
 			app.setMinimumLogicUpdateInterval(10);
 			app.start();
 		} catch (SlickException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
-	final char[] characters = {' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+	public final static char[] characters = {' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 	final int[][] problem3 = {
 			{34, 54, 23, 54, 63, 57, 87, 36, 105, 63, 100, 9, 55, 117, 115, 0, 169, 67, 65, 124, 45, 83, 135, 25, 134, 63,
 			79, 99, 100, 27, 107, 43, 50, 124, 39, 48, 160, 27, 90, 137, 0, 72, 122, 80, 114, 158, 104, 69, 10, 99, 70, 54},
@@ -47,10 +58,19 @@ public class MatrixPainter extends BasicGame {
 			{-3,-2,4},
 			{-1,0,1},
 			{2,1,-2}};
+	
+	
+	private Rectangle problem1Button;
+	private Rectangle problem2Button;
+	private Rectangle problem3Button;
+	
 	private int currentProblem;
 	private int[][] encrypterMatrix;
 	private int[] guesses;
-	private boolean running = true;
+	private boolean running = false;
+	
+	private List<StoredMatrix> matrices = new ArrayList<StoredMatrix>();
+	private int availableY = 5;
 	public MatrixPainter(String title) {
 		super(title);
 		// TODO Auto-generated constructor stub
@@ -58,17 +78,26 @@ public class MatrixPainter extends BasicGame {
 
 	@Override
 	public void render(GameContainer container, Graphics grafix) throws SlickException {
-		
-		
+		grafix.setColor(Color.blue);
+		grafix.draw(problem1Button);
+		grafix.setColor(Color.green);
+		grafix.draw(problem2Button);
+		grafix.setColor(Color.red);
+		grafix.draw(problem3Button);
+		grafix.setColor(Color.white);
+		for (StoredMatrix mt : matrices) {
+			System.out.println(mt.x + " " + mt.y);
+			grafix.drawImage(mt.imageMatrix, mt.x, mt.y);
+		}
 		switch(currentProblem) {
 		case 1:
 			
 			break;
 		case 2:
-			drawMatrix(grafix, stringMatrix(encrypterMatrix), 10, 10);
+			grafix.drawImage(drawMatrix(grafix, stringMatrix(encrypterMatrix)), 100, 10);
 			break;
 		case 3:
-			drawMatrix(grafix, stringMatrix(encrypterMatrix), 10, 10);
+			grafix.drawImage(drawMatrix(grafix, stringMatrix(encrypterMatrix)), 100, 10);
 			
 			break;
 		}
@@ -81,24 +110,38 @@ public class MatrixPainter extends BasicGame {
 		//grafix.drawString("(" +in.getMouseX() + ", " +in.getMouseY() + ")", 5, 5);
 		int[][] example = {{9, 0, 8, 15, 16,5},{0, 25, 15, 21, 0, 19},{20, 21, 4, 9, 5, 4}};
 		
-		drawMatrix(grafix, stringMatrix(encrypterMatrix), 10,10);
+		//grafix.drawImage(drawMatrix(grafix, stringMatrix(encrypterMatrix)), 100,10);
+		
 	}
 	
-	public void drawMatrix(Graphics grafix, String matrix, int x, int y) {
+	public static Image drawMatrix(Graphics grafix, String matrix) {
+		try {
+		Image image;
+		int step = 12;
 		
-		grafix.drawString(matrix, 3+x, y);
 		int height =grafix.getFont().getHeight(matrix);
 		int width = grafix.getFont().getWidth(matrix);
-		grafix.drawLine(x, y, x, y+height+3);
-		grafix.drawLine(x, y, x+3, y);
-		grafix.drawLine(x, y+height+3, x+3, y+height+3);
-		grafix.drawLine(x+width+6, y, x+width+3, y);
-		grafix.drawLine(x+width+6, y, x+width+6, y+height+3);
-		grafix.drawLine(x+width+6, y+height+3, x+width+3, y+height+3);
-		
+		image = new Image(width+6+step, height+6);
+		Graphics graph = GraphicsFactory.getGraphicsForImage(image);
+		graph.setColor(Color.white);
+		graph.setBackground(Color.black);
+		graph.drawString(matrix, 3, 0);
+		graph.drawLine(0, 0, 0, height+3);
+		graph.drawLine(0, 0, 3, 0);
+		graph.drawLine(0, height+3, 3, height+3);
+		graph.drawLine(width+6 + step-(width % step), 0, width+3+step- (width % step),0);
+		graph.drawLine(width+6+step- (width % step), 0, width+6+step- (width % step), height+3);
+		graph.drawLine(width+6+step- (width % step), height+3, width+3+step- (width % step), height+3);
+		GraphicsFactory.releaseGraphicsForImage(image);
+		return image;
+		} catch(SlickException e) {
+			e.printStackTrace();
+			System.exit(1);
+			return null;
+		}
 	}
 	
-	public String convertMatrixToText(int[][] matrix) {
+	public static String convertMatrixToText(int[][] matrix) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[0].length; j++) {
@@ -112,7 +155,7 @@ public class MatrixPainter extends BasicGame {
 		return sb.toString();
 	}
 	
-	public String stringMatrix(int[][] matrix) {
+	public static String stringMatrix(int[][] matrix) {
 		StringBuilder[] sb = new StringBuilder[matrix.length];
 		for (int sbIndex = 0; sbIndex < sb.length; sbIndex++) {
 			sb[sbIndex] = new StringBuilder();
@@ -175,19 +218,26 @@ public class MatrixPainter extends BasicGame {
 		case 1:
 			
 			currentProblem = 1;
+			running = true;
 			break;
 		case 2:
-			encrypterMatrix = new int[2][2];
+			encrypterMatrix = new int[][]{{1,1},{1,1}};
 			currentProblem = 2;
 			//guesses = new int[4];
 			// Guesses should be the suspected first word
+			running = true;
 			break;
 		case 3:
 			encrypterMatrix = new int[2][2];
 			guesses = new int[6];
 			currentProblem = 3;
+			running = true;
 			break;
 		}
+	}
+	
+	public int computeDeterminant(int[][] matrix) {
+		return matrix[0][0] * matrix[1][1] - matrix[1][0]*matrix[0][1];
 	}
 	
 	public int[][] computeInverse(int a, int b, int c, int d) {
@@ -258,17 +308,94 @@ public class MatrixPainter extends BasicGame {
 	public void init(GameContainer container) throws SlickException {
 		// TODO Auto-generated method stub
 		this.setCurrentProblem(2);
-		
+		problem1Button = new Rectangle(5,5, 60, 30);
+		problem2Button = new Rectangle(5,37, 60, 30);
+		problem3Button = new Rectangle(5, 68, 60, 30);
 	}
 
 	@Override
 	public void update(GameContainer container, int delta)
 			throws SlickException {
 		// TODO Auto-generated method stub
-		int increments = 1;
-		for(int i = 0; i < increments && running; i++) {
+		
+		int increments = 9;
+		for(int inc = 0; inc < increments && running; inc++) {
+			switch(currentProblem) {
+			case 1:
+				
+				break;
+			case 2:
+				if (encrypterMatrix[0][1] == 0) {
+					break;
+				}
+				int i = (62-20*encrypterMatrix[0][0])/encrypterMatrix[0][1];
+				int j = (32-8*encrypterMatrix[0][0])/encrypterMatrix[0][1];
+				int k = (45-5*encrypterMatrix[0][0])/encrypterMatrix[0][1];
+				if (i < 0 || j < 0 || k < 0) {
+					break;
+				}
+				boolean first =165==20*encrypterMatrix[1][0]+encrypterMatrix[1][1]*i;
+				boolean second = 84==8*encrypterMatrix[1][0]+encrypterMatrix[1][1]*j;
+				boolean third = 115==5*encrypterMatrix[1][0]+encrypterMatrix[1][1]*k;
+				if (first && second && third) {
+					addNewMatrix(encrypterMatrix, container.getGraphics());
+				}
+				break;
+			case 3:
+				
+				break;
+			}
 			this.setupNextIteration();
 		}
 	}
 
+	public void addNewMatrix(int[][] matrix, Graphics g){
+		
+		StoredMatrix tmpHandle = new StoredMatrix(matrix, g);
+		tmpHandle.x = getEncrypterX();
+		tmpHandle.y = getNextY(tmpHandle.height);
+		this.matrices.add(tmpHandle);
+	}
+	
+
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount) {
+		// TODO Auto-generated method stub
+		super.mouseClicked(button, x, y, clickCount);
+		
+		if (problem1Button.contains(x, y)) {
+			this.setCurrentProblem(1);
+		} else if (problem2Button.contains(x, y)) {
+			this.setCurrentProblem(2);
+		} else if (problem3Button.contains(x, y)) {
+			this.setCurrentProblem(3);
+		}
+	}
+
+	@Override
+	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		// TODO Auto-generated method stub
+		super.mouseDragged(oldx, oldy, newx, newy);
+		
+		
+		
+	}
+
+	private int getNextY(int postIncrement) {
+		int temp = availableY;
+		availableY += postIncrement;
+		return temp;
+		
+		//return 10;
+	}
+	
+	private int getEncrypterX() {
+		//return 160;
+		return 2*WindowWidth/ 3;
+	}
+	private int getAnswerX(StoredMatrix mt) {
+		return getEncrypterX() + mt.width + 10;
+	}
+	
+	
 }
